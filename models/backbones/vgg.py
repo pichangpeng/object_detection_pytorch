@@ -107,5 +107,78 @@ def vgg11(pretrained:bool=False,progress:bool=True,**kwargs:Any) ->VGG:
     return _vgg("vgg11","A",False,pretrained,progress,**kwargs)
 
 
+def vgg11_bn(pretrained:bool=False,progress:bool=True,**kwargs:Any) ->VGG:
+    """
+    Args:
+        pretrained(bool):是否加载预训练参数
+        progress(bool):是否显示下载数据的进度条
+    Return:
+        返回VGG模型
+    """
+    return _vgg("vgg11_bn","A",True,pretrained,progress,**kwargs)
     
+
+def vgg13(pretrained:bool=False,progress:bool=True,**kwargs:Any) ->VGG:
+    """
+    Args:
+        pretrained(bool):是否加载预训练参数
+        progress(bool):是否显示下载数据的进度条
+    Return:
+        返回VGG模型
+    """
+    return _vgg("vgg13","B",False,pretrained,progress,**kwargs)
+
+
+def vgg13_bn(pretrained:bool=False,progress:bool=True,**kwargs:Any) ->VGG:
+    """
+    Args:
+        pretrained(bool):是否加载预训练参数
+        progress(bool):是否显示下载数据的进度条
+    Return:
+        返回VGG模型
+    """
+    return _vgg("vgg13_bn","D",True,pretrained,progress,**kwargs)
     
+
+def vgg16(pretrained:bool=False,progress:bool=True,**kwargs:Any) ->VGG:
+    """
+    Args:
+        pretrained(bool):是否加载预训练参数
+        progress(bool):是否显示下载数据的进度条
+    Return:
+        返回VGG模型
+    """
+    return _vgg("vgg16","D",False,pretrained,progress,**kwargs)
+
+
+def vgg16_bn(pretrained:bool=False,progress:bool=True,**kwargs:Any) ->VGG:
+    """
+    Args:
+        pretrained(bool):是否加载预训练参数
+        progress(bool):是否显示下载数据的进度条
+    Return:
+        返回VGG模型
+    """
+    return _vgg("vgg16_bn","D",True,pretrained,progress,**kwargs)
+
+
+def vgg19(pretrained:bool=False,progress:bool=True,**kwargs:Any) ->VGG:
+    """
+    Args:
+        pretrained(bool):是否加载预训练参数
+        progress(bool):是否显示下载数据的进度条
+    Return:
+        返回VGG模型
+    """
+    return _vgg("vgg19","E",False,pretrained,progress,**kwargs)
+
+
+def vgg19_bn(pretrained:bool=False,progress:bool=True,**kwargs:Any) ->VGG:
+    """
+    Args:
+        pretrained(bool):是否加载预训练参数
+        progress(bool):是否显示下载数据的进度条
+    Return:
+        返回VGG模型
+    """
+    return _vgg("vgg19_bn","E",True,pretrained,progress,**kwargs)
