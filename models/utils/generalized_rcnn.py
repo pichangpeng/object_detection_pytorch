@@ -1,12 +1,12 @@
 """
-实现R-CNN的框架：backbones+necks+heads+losses
+实现R-CNN的框架：数据异常检查+backbones+necks+heads+losses
 """
 
 from collections import OrderedDict  #dict具有hash特性，是无序的，OrderDict提供了一个有序的字典对象
 import torch
 from torch import nn,Tensor
 import warnings
-from typing import Tuple,List,Dict,Optional,Union   #Optional=Union[X,None],不仅可以选择默认类型X，还可赋值为None
+from typing import Tuple,List,Dict,Optional,Union  #Optional=Union[X,None],不仅可以选择默认类型X，还可赋值为None
 
 class GeneralizedRCNN(nn.Module):
     """
@@ -44,9 +44,9 @@ class GeneralizedRCNN(nn.Module):
                 boxes=target["boxes"]
                 if isinstance(boxes,torch.Tensor):
                     if len(boxes.shape) !=2 or boxes.shape[-1] !=4:
-                        raise ValueError("Expected target boxes to be a tensor of shape [N,4],got{:}.".format(boxes.shape))
+                        raise ValueError("Expected target boxes to be a tensor of shape [N,4],got{}.".format(boxes.shape))
                 else:
-                    raise ValueError("Expected target boxes to be of type Tensor,got{:}.".format(type(boxes)))
+                    raise ValueError("Expected target boxes to be of type Tensor,got{}.".format(type(boxes)))
 
         original_image_sizes:List[Tuple[int,int]]=[]
         for img in images:
@@ -55,5 +55,38 @@ class GeneralizedRCNN(nn.Module):
             original_image_sizes.append((val[0],val[1]))
 
         images,targets=self.transform(images,targets)
+
+        #检查boxes的数据问题：x1<x2,y1<y2
+        if targets is not None:
+            for target_idx,target in enumerate(targets):
+                boxes=targets["boxes"]
+                degenerate_boxes=boxes[:,2:]<=boxes[:,:2]   #如果数据错误 x2<=x1 或则y2<=y1 则记录为true
+                if degenerate_boxes.any():     #any() 函数用于判断给定的可迭代参数 iterable 是否全部为 False，则返回 False，如果有一个为 True，则返回 True
+                    #打印出第一个问题数据
+                    bb_idx=torch.where(degenerate_boxes.any(dim=1))[0][0]
+                    degen_bb:List[float]=boxes[bb_idx].tolist()
+                    raise ValueError("All bounding boxes should have positive height and width."
+                                     " Found invalid box {} for target at index {}."
+                                     .format(degen_bb, target_idx))
+        
+        features=self.backbone(images.tensors)
+        if isinstance(features,torch.Tensor):
+            features=OrderedDict([("0",features)])
+        proposals,proposal_losses=self.rpn(images,features,targets)
+        detections,detector_losses=self.roi_heads(features,proposals,images.image_sizes,original_image_sizes)
+        detections=self.transform.postprocess(detections,images.image_sizes,original_image_sizes)
+
+        losses={}#如果被更新的字典中己包含对应的键值对，那么原 value 会被覆盖；如果被更新的字典中不包含对应的键值对，则该键值对被添加进去
+        losses.update(detector_losses)
+        losses.update(proposal_losses)
+
+        if not self._has_warned:
+            warnings.warn("RCNN always returns a (Losses, Detections) tuple in scripting")
+            self._has_warned = True
+        return losses,detections
+
+
+
+
         
 
