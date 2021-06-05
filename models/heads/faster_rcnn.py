@@ -5,7 +5,7 @@ import torch.nn.functional as F
 
 from ..utils.generalized_rcnn import GeneralizedRCNN
 from ..utils.anchor import AnchorGenerator
-
+from ..utils.roi_align import MultiScaleRoIAlign
 __all__ = [
     "FasterRCNN", "fasterrcnn_resnet50_fpn", "fasterrcnn_mobilenet_v3_large_320_fpn",
     "fasterrcnn_mobilenet_v3_large_fpn"
@@ -90,5 +90,8 @@ class FasterRCNN(GeneralizedRCNN):
                 "backbone should contain an attribute out_channels "
                 "specifying the number of output channels (assumed to be the "
                 "same for all the levels)")
+
+        assert isinstance(rpn_anchor_generator,(AnchorGenerator,type(None)))
+        
 
         
